@@ -7,45 +7,17 @@
 
     <style>
         body{
-            scroll-snap-type: y manditory;
-        }
-        #section2{
-            background-color:green;
-        }
-        section{
-            height:98dvh;
-            scroll-snap-align: center;
+            display:flex;
+            justify-content:center;
+            align-items:center;
         }
     </style>
-
+    
 </head>
 <body>
-
-<!--This was/started as an attempt to see if I could add
-    HTML items and canvas stuff to the same like.. section
-    and change their z-indexes or some shit to allow them
-    to occupy the same space and it didn't work...
-    but I don't really want to delete that stuff for some
-    reason...
--->
-<!--I do believe I could make it happen with some relative
-    and absolute positioning stuff... which... would work
-    for the thing I was wanting to do this for anyways.. so..
-    yea..
--->
-<!--Anyways... KEEP THIS exactly how it is...
-    I want like it and it works well... but... copy it..
-    and try to make it play itself...
--->
-
-    <section id="section1">
-        <canvas id="canvas"></canvas>
-        <p id="put-on-top">
-          I am now going to add text here and see what happens
-        </p>
-    </section>
-    <section id="section2"></section>
-
+    
+    <canvas id="canvas"></canvas>
+    
     <script>
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
@@ -124,14 +96,6 @@
         }
         drawCanvas()
 
-
-        //-------once I get it all figured out and working... then...---//
-        //-----I'll see if I can figure out how to let it play itself----//
-        /*----It'll have to pick one of the velocity directions or some shit
-        out of an array or something... and.. if that direction doesn't work
-        then it runs through the code again untill it can go in a direction...
-        honestly shouldn't be all that hard... probably end up being a while
-        loop actually maybe...*/
         function drawSnakeHead(){
             for(i = 0; i - snakeTail.length; i++){
                 let tailPiece = snakeTail[i];
