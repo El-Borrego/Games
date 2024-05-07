@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game!!</title>
+
+    <style>
+        body{
+            scroll-snap-type: y manditory;
+        }
+        #section2{
+            background-color:green;
+        }
+        section{
+            height:98dvh;
+            scroll-snap-align: center;
+        }
+    </style>
+
+</head>
+<body>
+
+<!--This was/started as an attempt to see if I could add
+    HTML items and canvas stuff to the same like.. section
+    and change their z-indexes or some shit to allow them
+    to occupy the same space and it didn't work...
+    but I don't really want to delete that stuff for some
+    reason...
+-->
+<!--I do believe I could make it happen with some relative
+    and absolute positioning stuff... which... would work
+    for the thing I was wanting to do this for anyways.. so..
+    yea..
+-->
+<!--Anyways... KEEP THIS exactly how it is...
+    I want like it and it works well... but... copy it..
+    and try to make it play itself...
+-->
+
+    <section id="section1">
+        <canvas id="canvas"></canvas>
+        <p id="put-on-top">
+          I am now going to add text here and see what happens
+        </p>
+    </section>
+    <section id="section2"></section>
+
+    <script>
+        const canvas = document.getElementById("canvas");
+        const context = canvas.getContext("2d");
+        canvas.width = window.innerWidth - 30;
+        canvas.height = window.innerHeight - 30;
+        canvas.style.background = "purple"
+
+        let x = Math.round(Math.random() * canvas.width - 50);
+        let y = Math.round(Math.random() * canvas.height - 50)
+
+        let xVelocity = Math.random() * 5;
+        let yVelocity = Math.random() * 5;
+
+        let snakeX = Math.floor(Math.random() * (canvas.width - 25)/25)  * 25;
+        let snakeY = Math.floor(Math.random() * (canvas.height - 25)/25)  * 25;
+
+        let sillyGulp = new Audio("gulp-48452.mp3")
+
+        let snakeTail = [];
+
+        class Tail{
+            constructor(x, y){
+                this.x = x;
+                this.y = y;
+            }
+        }
+        let tailLength = 0
+
+        let velocityY = 0;
+        let velocityX = 0;
+
+        let speed = 7;
+        let score = 0;
+
+        let foodX = Math.floor(Math.random() * (canvas.width - 30)/25)  * 25;
+        let foodY = Math.floor(Math.random() * (canvas.height - 30)/25)  * 25;
+
+        function drawCircle(){
+            context.beginPath();
+            context.arc(x, y, 50, 0, Math.PI * 2, false);
+            context.stroke();
+            context.closePath()
+        }
+
+        function moveCircle(){
+            x += xVelocity;
+            y += yVelocity;
+            if(x + 50 > canvas.width){
+                xVelocity = - xVelocity;
+            }
+            if(y + 50 > canvas.height){
+                yVelocity = - yVelocity
+            }
+            if(y - 60 < 0){
+                yVelocity += 1;
+            }
+            if(x - 60 < 0){
+                xVelocity += 1;
+            }
+        }
+
+        function drawCanvas(){
+            context.clearRect(0,0,canvas.width,canvas.height);
+            drawCircle();
+            moveCircle();
+            snakeMove();
+            let result = gameOver();
+            drawFood();
+            drawSnakeHead();
+            drawScore();
+            eatFood();
+            if(result){
+                return
+            }
+            setTimeout(drawCanvas, 1000/speed);
+        }
+        drawCanvas()
+
+
+        //-------once I get it all figured out and working... then...---//
+        //-----I'll see if I can figure out how to let it play itself----//
+        /*----It'll have to pick one of the velocity directions or some shit
+        out of an array or something... and.. if that direction doesn't work
+        then it runs through the code again untill it can go in a direction...
+        honestly shouldn't be all that hard... probably end up being a while
+        loop actually maybe...*/
+        function drawSnakeHead(){
+            for(i = 0; i - snakeTail.length; i++){
+                let tailPiece = snakeTail[i];
+                context.fillStyle = "green";
+                context.fillRect(tailPiece.x, tailPiece.y, 25, 25);
+                context.strokeRect(tailPiece.x, tailPiece.y, 25, 25);
+            }
+
+            snakeTail.push(new Tail(snakeX, snakeY, 25, 25));
+            while(snakeTail.length > tailLength){
+                snakeTail.shift()
+            }
+
+            context.lineWidth = 3;
+            context.fillStyle = "orange";
+            context.fillRect(snakeX, snakeY, 25, 25);
+            context.strokeRect(snakeX, snakeY, 25, 25)
+        }
+        function drawFood(){
+            context.fillStyle = "red";
+            context.lineWidth = 3;
+            context.fillRect(foodX, foodY, 25, 25)
+            context.strokeRect(foodX, foodY, 25, 25)
+        }
+
+        window.addEventListener("keydown",function(event){
+        
+            if(event.key === "i"){
+                if(velocityY == 25){
+                return;
+                }
+                velocityY = -25;
+                velocityX = 0
+            }
+            if(event.key === "j"){
+                if(velocityX == 25){
+                return
+                }
+                velocityX = -25;
+                velocityY = 0
+            }  
+            if(event.key === "k"){
+                if(velocityY == -25){
+                return;
+                }
+                velocityY = + 25;
+                velocityX = 0
+            }
+            if(event.key === "l"){
+                if(velocityX == -25){
+                return
+                }
+                velocityX = + 25;
+                velocityY = 0
+            }
+        })
+
+        function snakeMove(){
+            snakeX = snakeX + velocityX;
+            snakeY = snakeY + velocityY
+        }
+
+        function drawScore(){
+            context.fillStyle = "white";
+            context.font = "20px mono";
+            context.fillText("Score: "  + score, canvas.width - 100, 50)
+        }
+
+        function eatFood(){
+            if(snakeX == foodX && snakeY == foodY){
+                foodX = Math.floor(Math.random() * (canvas.width - 30)/25)  * 25;
+                foodY = Math.floor(Math.random() * (canvas.height - 30)/25)  * 25;
+                score++;
+                tailLength++;
+                sillyGulp.play()
+                if(score % 5 == 0){
+                    speed++;
+                    xVelocity++;
+                    yVelocity++;
+                }
+            }
+        }
+
+        function gameOver(){
+            let isGameOver = false;
+            if(snakeX > canvas.width){
+                velocityX = 0;
+                isGameOver = true;
+            }
+            else if(snakeY > canvas.height){
+                velocityY = 0;
+                isGameOver = true;
+            }
+            else if(snakeX < 0){
+                velocityX = 0;
+                isGameOver = true;
+            }
+            else if(snakeY < 0){
+                velocityY = 0;
+                isGameOver = true;
+            }
+            for(i = 0; i - snakeTail.length; i++){
+
+                let something = snakeTail[i];
+                if(snakeX == something.x && snakeY == something.y){
+                    isGameOver = true;
+                    break;
+                }
+            }
+            
+            
+            if(isGameOver){
+                
+                context.fillStyle = "black";
+                context.font = "50px MV Boli";
+                context.textAlign = "center"
+                context.fillText("Game Over", canvas.width/2, canvas.height/2 - 70);
+                context.fillText('Press "Enter" to play again', canvas.width/2, canvas.height/2)
+
+                window.addEventListener("keypress",function(event){
+                    if(event.key === "Enter" && isGameOver == true){
+
+                        context.clearRect(0, 0, canvas.width, canvas.height);
+
+                        snakeX = Math.floor(Math.random() * (canvas.width - 25)/25)  * 25;
+                        snakeY = Math.floor(Math.random() * (canvas.height - 25)/25)  * 25;
+
+                        tailLength = 0
+                        velocityY = 0;
+                        velocityX = 0;
+                        speed = 7;
+                        score = 0;
+
+                        drawCanvas();
+
+                        isGameOver = false;
+                    }
+                })
+                return isGameOver
+            }
+        }
+    </script>
+
+</body>
+</html>
